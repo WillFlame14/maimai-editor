@@ -19,7 +19,8 @@ public class Maimai {
 
             public void keyPressed(KeyEvent e) {
                 Judgement eval = Song.check(e.getKeyCode(), window.activenotes);
-                System.out.println(eval);
+                if(eval != Judgement.ERROR)
+                    System.out.println(eval);
             }
 
             public void keyReleased(KeyEvent e) {
@@ -31,7 +32,60 @@ public class Maimai {
 }
 
 enum Judgement {
-    MISS, GOOD, GREAT, PERFECT, CRITICAL;
+    ERROR(0), MISS(1), GOOD(2), GREAT(3), PERFECT(4), CRITICAL(5);
+    int id;
+    
+    Judgement (int id) {
+        this.id = id;
+    }
+    
+    public static Judgement evaluate(double distance) {
+        if(distance < 5)      //TODO: Make dependent on bpm
+            return CRITICAL;
+        if(distance < 10)     
+            return PERFECT;
+        if(distance < 15)      
+            return GREAT;
+        if(distance < 20)
+            return GOOD;
+        return MISS;
+    }
+    
+    public static Judgement idToJudgement (int id) {
+        switch (id) {
+            case 1:
+                return Judgement.MISS;
+            case 2:
+                return Judgement.GOOD;
+            case 3: 
+                return Judgement.GREAT;
+            case 4:
+                return Judgement.PERFECT;
+            case 5:
+                return Judgement.CRITICAL;
+            default:
+                return Judgement.ERROR;
+        }
+    }
+    
+    public static Judgement average(Judgement j1, Judgement j2) {
+        return idToJudgement((int)Math.round((j1.id + j2.id) / 2.0));
+    }
+    
+    public String toString() {
+        switch(this) {
+            case PERFECT:
+                return "Perfect";
+            case GOOD:
+                return "Good";
+            case MISS:    
+                return "Miss";
+            case ERROR:
+                return "AAAAAAAA";
+            default:
+                return "BBBBBBBBBBB";
+        }
+    }
 }
 
 class JudgementMissException extends Exception {

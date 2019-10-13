@@ -94,10 +94,13 @@ class Sequence {
 class ActiveNote {
     double radius;
     Note note;
+    int complete;
+    Judgement halfjudgement;
     
     public ActiveNote(Note note) {
         this.note = note;
         radius = 0;
+        complete = -1;
     }
     
     public static Pair convertCartesian(double radius, int position) {
