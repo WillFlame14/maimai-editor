@@ -14,7 +14,7 @@ import org.json.simple.parser.*;
 
 public class Song {
     String title, artist;
-    double bpm, crochet, offset;
+    double bpm, crochet, offset, scrollspeed;
     int crochetsperbar;
     Conductor conductor;
     LinkedList<Sequence> notes = new LinkedList<>();
@@ -26,13 +26,15 @@ public class Song {
             JSONObject obj = (JSONObject) parser.parse(new FileReader(file));
 
             bpm = Double.parseDouble(obj.get("bpm") + "");
+            crochet = 60 / bpm;
             crochetsperbar = Integer.parseInt(obj.get("crochetsperbar") + "");
             offset = Double.parseDouble(obj.get("offset") + "");
+            scrollspeed = bpm / 125.0;
 
             conductor = new Conductor(bpm, 0, crochetsperbar, offset);
 
-            JSONArray notes = (JSONArray) obj.get("notes");
-            for (Object o : notes) {
+            JSONArray noteObjs = (JSONArray) obj.get("notes");
+            for (Object o : noteObjs) {
                 JSONObject noteObj = (JSONObject) o;
                 int bar = Integer.parseInt(noteObj.get("bar") + "");
                 double beat = Double.parseDouble(noteObj.get("beat") + "");
@@ -72,6 +74,8 @@ public class Song {
                         radius = Double.parseDouble(noteObj.get("radius") + "");
                         note = new TapNote(pos, radius);
                         break;
+                    default:
+                        throw new ClassCastException("");
                 }
                 notes.add(new Sequence(bar, beat, note, ((bar * crochetsperbar + beat) * crochet + offset) * 1000));
             }
@@ -89,6 +93,7 @@ public class Song {
     public void runSong(LinkedList<Sequence> map, ArrayList<ActiveNote> activenotes) {
         int counter = 0;
         while(counter < map.size() && map.get(counter).time <= conductor.songposition) {
+            System.out.println(conductor.songposition);
             activenotes.add(new ActiveNote(map.get(counter).note));
             counter++;
         }
@@ -101,7 +106,7 @@ public class Song {
         HashMap<Integer, ActiveNote> hittable = new HashMap<>(8);
         HashSet<Integer> positions = new HashSet<>();     //impossible to hit 2 notes with same position
         for(ActiveNote a: activenotes) {
-            if(a.radius >= 40 && !positions.contains(a.note.position)) {        //once again, impossible to hit 2 notes with same position (doubles are exclusive) TODO: radius dependent on bpm
+            if(a.radius >= 100 && !positions.contains(a.note.position)) {        //once again, impossible to hit 2 notes with same position (doubles are exclusive) TODO: radius dependent on bpm
                 switch(a.note.type) {       //TODO: circle and across notes
                     case "Double":
                         positions.add(a.note.position);
@@ -157,7 +162,7 @@ public class Song {
         ArrayList<Integer> toRemove = new ArrayList<>(10);
         boolean missed = false;
         for(int i = 0; i < activenotes.size(); i++) {
-            if(activenotes.get(i).radius >= 50) {       //TODO: make dependent on bpm
+            if(activenotes.get(i).radius >= 250) {       //TODO: make dependent on bpm
                 toRemove.add(i);
                 missed = true;
             }
@@ -166,7 +171,7 @@ public class Song {
             }
         }
         if(missed) {
-            for(int i: toRemove) {
+            for(int i = toRemove.size() - 1; i > -1; --i) {
                 activenotes.remove(i);
             }
             throw new JudgementMissException("");

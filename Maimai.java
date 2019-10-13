@@ -4,11 +4,13 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.IOException;
+import javafx.embed.swing.JFXPanel;
 
 public class Maimai {
 
     public static void main(String[] args)throws IOException {
         Song zephyranthes = new Song(new File("Zephyranthes.json"));
+        final JFXPanel fxPanel = new JFXPanel();        //to initialize toolkit for the media player
         
         GUI window = new GUI("Maimai", zephyranthes);
         window.setFocusable(true);
