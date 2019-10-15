@@ -64,7 +64,8 @@ public class Song {
                         break;    
                     case "Circle":
                         pos2 = Integer.parseInt(noteObj.get("position2") + "");
-                        note = new CircleNote(pos, pos2);
+                        boolean clockwise = Boolean.getBoolean(noteObj.get("clockwise") + "");
+                        note = new CircleNote(pos, pos2, clockwise);
                         break;
                     case "Across":
                         pos2 = Integer.parseInt(noteObj.get("position2") + "");
@@ -157,20 +158,32 @@ public class Song {
     }
     
     public void checkfail(ArrayList<ActiveNote> activenotes)throws JudgementMissException {
-        ArrayList<Integer> toRemove = new ArrayList<>(10);
+        ArrayList<ActiveNote> toRemove = new ArrayList<>(10);
         boolean missed = false;
-        for(int i = 0; i < activenotes.size(); i++) {
-            if(activenotes.get(i).radius >= GUI.hitradius + 40) {
-                toRemove.add(i);
-                missed = true;
-            }
-            else {
-                break;
+        for(ActiveNote an: activenotes) {
+            switch(an.note.type) {
+                case "Single":
+                case "Double":
+                    if(an.radius >= GUI.hitradius + 40) {
+                        toRemove.add(an);
+                        missed = true;
+                    }
+                    break;
+                case "Hold":
+                case "DoubleHold":
+                    break;
+                case "Circle":
+                case "Across":
+                    if(an.progress >= 1) {
+                        toRemove.add(an);
+                        missed = true;
+                    }
+                    break;
             }
         }
         if(missed) {
-            for(int i = toRemove.size() - 1; i > -1; --i) {
-                activenotes.remove(i);
+            for(ActiveNote an: toRemove) {
+                activenotes.remove(an);
             }
             throw new JudgementMissException("");
         }

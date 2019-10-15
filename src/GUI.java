@@ -18,9 +18,9 @@ public class GUI extends JFrame implements ActionListener, MouseListener {
     Conductor conductor;     //bpm, songposition, crochetsperbar, offset
     static MediaPlayer mediaPlayer;
     static Song song;
-    static Image singlenote, doublenote, holdnote, doubleholdnote, circlenote, acrossnote, tapnote, hitarea;
-    static double hitradius = 290;
-    static int centrex = 278, centrey = 278;
+    static Image singlenote, doublenote, holdnote, doubleholdnote, circlenote, acrossnote, tapnote, sliderarrow, hitarea;
+    static double hitradius = 290, sliderspeed = 2;
+    static int centrex = 275, centrey = 275;
     
     public GUI(String name, Song song)throws IOException {
         super(name);
@@ -37,12 +37,13 @@ public class GUI extends JFrame implements ActionListener, MouseListener {
         mediaPlayer.play();
         
         singlenote = ImageIO.read(new File("single_note.png")).getScaledInstance(50, 50, BufferedImage.SCALE_DEFAULT);
-//        doublenote = ImageIO.read(new File("double_note.png")).getScaledInstance(50, 50, BufferedImage.SCALE_DEFAULT);
+        doublenote = ImageIO.read(new File("double_note.png")).getScaledInstance(50, 50, BufferedImage.SCALE_DEFAULT);
 //        holdnote = ImageIO.read(new File("hold_note.png")).getScaledInstance(50, 50, BufferedImage.SCALE_DEFAULT);
 //        doubleholdnote = ImageIO.read(new File("double_hold_note.png")).getScaledInstance(50, 50, BufferedImage.SCALE_DEFAULT);
-//        circlenote = ImageIO.read(new File("circle_note.png")).getScaledInstance(50, 50, BufferedImage.SCALE_DEFAULT);
+        circlenote = ImageIO.read(new File("circle_note.png")).getScaledInstance(50, 50, BufferedImage.SCALE_DEFAULT);
 //        acrossnote = ImageIO.read(new File("across_note.png")).getScaledInstance(50, 50, BufferedImage.SCALE_DEFAULT);
 //        tapnote = ImageIO.read(new File("tap_note.png")).getScaledInstance(50, 50, BufferedImage.SCALE_DEFAULT);
+        sliderarrow = ImageIO.read(new File("slider_arrow.png")).getScaledInstance(16, 16, BufferedImage.SCALE_DEFAULT);
         hitarea = ImageIO.read(new File("hit_area.png")).getScaledInstance(600, 600, BufferedImage.SCALE_DEFAULT);
         
         t = new Timer(3, movement);
@@ -81,14 +82,30 @@ public class GUI extends JFrame implements ActionListener, MouseListener {
         
         private void updateAllPos() {
             for (ActiveNote b: activenotes) {
-                b.radius += song.scrollspeed;
+                switch(b.note.type) {
+                    case "Single":
+                    case "Double":
+                        b.radius += song.scrollspeed;
+                        break;
+                    case "Hold":
+                    case "DoubleHold":
+                        break;
+                    case "Circle":
+                    case "Across":
+                        if(b.radius <= GUI.hitradius) {
+                            b.radius += song.scrollspeed;
+                        }
+                        else {
+                            System.out.println("SLIDING");
+                            b.progress += 0.005;
+                        }
+                        break;
+                }
             }
         }
     }
     
     public static void show(Graphics g) {
-        g.setColor(Color.white);
-        g.fillRect(0, 0, 600, 600);     //white background
         g.drawImage(hitarea, 0, 0, null);      //hit area
         
         for(ActiveNote a: activenotes) {      //active notes
@@ -111,9 +128,32 @@ public class GUI extends JFrame implements ActionListener, MouseListener {
                     g.drawImage(doubleholdnote, (int)p2.a + centrex, (int)p2.b + centrey, null);
                     break;    
                 case "Circle":
-                    //p2 = ActiveNote.convertCartesian(a.radius, ((CircleNote)a.note).posfinal);        //p2 is used later
-                    g.drawImage(circlenote, (int)p1.a + centrex, (int)p1.b + centrey, null);
-                    //g.drawImage(circlenote, (int)p2.a + centrex, (int)p2.b + centrey, null);
+                    if(a.radius >= GUI.hitradius && a.progress != 1) {     //in the middle of sliding
+                        CircleNote thisnote = (CircleNote)a.note;
+                        double initialAngle = 5 * Math.PI / 8 - Math.PI * thisnote.position / 4,
+                                finalAngle = 5 * Math.PI / 8 - Math.PI * thisnote.posfinal / 4;
+                        if(!thisnote.clockwise) {
+                            if(initialAngle < finalAngle) {
+                                initialAngle += Math.PI * 2;
+                            }
+                            for(double i = initialAngle; i >= finalAngle; i -= Math.PI / 20.0) {
+                                p2 = ActiveNote.convertCartesianRadians(a.radius - 15, i);
+                                g.drawImage(sliderarrow, (int)(p2.a + centrex + 17), (int)(p2.b + centrey + 17), null);
+                            }
+                        }
+                        else {
+                            if(initialAngle > finalAngle) {
+                                initialAngle -= Math.PI * 2;
+                            }
+                            for(double i = initialAngle; i <= finalAngle; i += Math.PI / 20.0) {
+                                p2 = ActiveNote.convertCartesianRadians(a.radius - 15, i);
+                                g.drawImage(singlenote, (int)(p2.a + centrex + 17), (int)(p2.b + centrey + 17), null);
+                            }
+                        }
+                    }
+                    else {          //haven't started sliding yet
+                        g.drawImage(circlenote, (int)p1.a + centrex, (int)p1.b + centrey, null);
+                    }
                     break;  
                 case "Across":
                     //p2 = ActiveNote.convertCartesian(a.radius, ((AcrossNote)a.note).posfinal);        //p2 is used later

@@ -50,10 +50,12 @@ class DoubleHoldNote extends Note {
 
 class CircleNote extends Note {
     int posfinal;
+    boolean clockwise;
     
-    public CircleNote (int posInitial, int posFinal) {
+    public CircleNote (int posInitial, int posFinal, boolean clockwise) {
         super(posInitial);
         posfinal = posFinal;
+        this.clockwise = clockwise;
         type = "Circle";
     }
 }
@@ -92,19 +94,24 @@ class Sequence {
 }
 
 class ActiveNote {
-    double radius;
+    double radius, progress;        //progress is for circle/across notes, in percentage
     Note note;
-    int complete;
-    Judgement halfjudgement;
+    int complete;   //0 is half complete
+    Judgement halfjudgement;        //the stored judgement (for double notes)
     
     public ActiveNote(Note note) {
         this.note = note;
         radius = 0;
+        progress = 0;
         complete = -1;
     }
     
     public static Pair convertCartesian(double radius, int position) {
         return new Pair(radius * Math.cos(5 * Math.PI / 8 - Math.PI * position / 4), radius * Math.sin(5 * Math.PI / 8 - Math.PI * position / 4));
+    }
+    
+    public static Pair convertCartesianRadians(double radius, double radians) {
+        return new Pair(radius * Math.cos(radians), radius * Math.sin(radians));
     }
 }
 
