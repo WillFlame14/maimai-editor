@@ -5,11 +5,19 @@
 	"notes": [
 		{"bar": "0", "beat": "2", "position": "0", "type": "Single"},
 		{"bar": "0", "beat": "4", "position": "1", "type": "Single"},
-		{"bar": "0", "beat": "6", "position": "2", "type": "Single"},
-		{"bar": "0", "beat": "6", "position": "3", "type": "Single"},
+		{"bar": "0", "beat": "6", "position": "2", "type": "Circle", "position2": "1", "clockwise": "true"},
 		{"bar": "1", "beat": "0", "position": "4", "type": "Single"},
 		{"bar": "1", "beat": "2", "position": "5", "type": "Single"},
 		{"bar": "1", "beat": "4", "position": "6", "type": "Single"},
 		{"bar": "1", "beat": "6", "position": "7", "type": "Single"},
-		{"bar": "1", "beat": "6", "position": "0", "type": "Single"},]
+		{"bar": "1", "beat": "6", "position": "0", "type": "Single"},
+		{"bar": "1", "beat": "6", "position": "1", "type": "Single"},
+		{"bar": "1", "beat": "6", "position": "2", "type": "Single"},
+		{"bar": "1", "beat": "6", "position": "3", "type": "Single"},
+		{"bar": "1", "beat": "6", "position": "4", "type": "Single"},
+		{"bar": "1", "beat": "6", "position": "5", "type": "Single"},
+		{"bar": "1", "beat": "6", "position": "6", "type": "Single"},
+		{"bar": "1", "beat": "6", "position": "7", "type": "Single"},
+		{"bar": "1", "beat": "6", "position": "8", "type": "Single"},
+		{"bar": "1", "beat": "8", "position": "0", "type": "Single"},]
 }
