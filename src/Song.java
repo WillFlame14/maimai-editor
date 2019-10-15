@@ -29,7 +29,7 @@ public class Song {
             crochet = 60 / bpm;
             crochetsperbar = Integer.parseInt(obj.get("crochetsperbar") + "");
             offset = Double.parseDouble(obj.get("offset") + "");
-            scrollspeed = bpm / 125.0;
+            scrollspeed = bpm * 2.25 / GUI.hitradius;
 
             conductor = new Conductor(bpm, 0, crochetsperbar, offset);
 
@@ -93,7 +93,6 @@ public class Song {
     public void runSong(LinkedList<Sequence> map, ArrayList<ActiveNote> activenotes) {
         int counter = 0;
         while(counter < map.size() && map.get(counter).time <= conductor.songposition) {
-            System.out.println(conductor.songposition);
             activenotes.add(new ActiveNote(map.get(counter).note));
             counter++;
         }
@@ -102,24 +101,23 @@ public class Song {
         }
     }
     
-    public static Judgement check(int keyCode, ArrayList<ActiveNote> activenotes) {
+    public static Judgement check(int keyCode, double customscrollspeed, ArrayList<ActiveNote> activenotes) {
         HashMap<Integer, ActiveNote> hittable = new HashMap<>(8);
         HashSet<Integer> positions = new HashSet<>();     //impossible to hit 2 notes with same position
         for(ActiveNote a: activenotes) {
             if(a.radius >= 100 && !positions.contains(a.note.position)) {        //once again, impossible to hit 2 notes with same position (doubles are exclusive) TODO: radius dependent on bpm
                 switch(a.note.type) {       //TODO: circle and across notes
                     case "Double":
-                        positions.add(a.note.position);
                         positions.add(((DoubleNote)a.note).pos2);
                         hittable.put(((DoubleNote)a.note).pos2, a);
                         break;
                     case "DoubleHoldNote":
-                        positions.add(a.note.position);
                         positions.add(((DoubleHoldNote)a.note).pos2);
                         hittable.put(((DoubleHoldNote)a.note).pos2, a);
                         break; 
                 }
                 hittable.put(a.note.position, a);
+                positions.add(a.note.position);
             }
         }
         Judgement judgement;
@@ -138,7 +136,7 @@ public class Song {
                 int value = keyCode - 48;
                 if(positions.contains(value)) {
                     toHit = hittable.get(value);
-                    judgement = Judgement.evaluate(Math.abs(toHit.radius - GUI.hitradius));
+                    judgement = Judgement.evaluate(Math.abs(toHit.radius - GUI.hitradius), customscrollspeed);
                     if(toHit.note.type.equals("Single") || toHit.note.type.equals("Tap") || toHit.complete != -1) {     //single taps, or half the note has been completed already
                         activenotes.remove(hittable.get(value));
                         if(toHit.complete != -1) {      //average both judgements
@@ -162,7 +160,7 @@ public class Song {
         ArrayList<Integer> toRemove = new ArrayList<>(10);
         boolean missed = false;
         for(int i = 0; i < activenotes.size(); i++) {
-            if(activenotes.get(i).radius >= 250) {       //TODO: make dependent on bpm
+            if(activenotes.get(i).radius >= GUI.hitradius + 40) {
                 toRemove.add(i);
                 missed = true;
             }

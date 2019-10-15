@@ -20,7 +20,7 @@ public class Maimai {
             }
 
             public void keyPressed(KeyEvent e) {
-                Judgement eval = Song.check(e.getKeyCode(), window.activenotes);
+                Judgement eval = Song.check(e.getKeyCode(), zephyranthes.scrollspeed, window.getActiveNotes());
                 if(eval != Judgement.ERROR)
                     System.out.println(eval);
             }
@@ -41,14 +41,14 @@ enum Judgement {
         this.id = id;
     }
     
-    public static Judgement evaluate(double distance) {
-        if(distance < 5)      //TODO: Make dependent on bpm
+    public static Judgement evaluate(double distance, double scrollspeed) {
+        if(distance < 5 * scrollspeed)      
             return CRITICAL;
-        if(distance < 10)     
+        if(distance < 10 * scrollspeed)     
             return PERFECT;
-        if(distance < 15)      
+        if(distance < 15 * scrollspeed)      
             return GREAT;
-        if(distance < 20)
+        if(distance < 20 * scrollspeed)
             return GOOD;
         return MISS;
     }
@@ -76,8 +76,12 @@ enum Judgement {
     
     public String toString() {
         switch(this) {
+            case CRITICAL:
+                return "Critical Perfect";
             case PERFECT:
                 return "Perfect";
+            case GREAT:
+                return "Great";
             case GOOD:
                 return "Good";
             case MISS:    

@@ -19,8 +19,8 @@ public class GUI extends JFrame implements ActionListener, MouseListener {
     static MediaPlayer mediaPlayer;
     static Song song;
     static Image singlenote, doublenote, holdnote, doubleholdnote, circlenote, acrossnote, tapnote, hitarea;
-    static double hitradius = 45;
-    static int centrex = 280, centrey = 280;
+    static double hitradius = 290;
+    static int centrex = 278, centrey = 278;
     
     public GUI(String name, Song song)throws IOException {
         super(name);
@@ -142,6 +142,10 @@ public class GUI extends JFrame implements ActionListener, MouseListener {
             GUI.show(bufferedImage.getGraphics());
             return bufferedImage;
         }
+    }
+    
+    public ArrayList<ActiveNote> getActiveNotes() {
+        return activenotes;
     }
 
     @Override
