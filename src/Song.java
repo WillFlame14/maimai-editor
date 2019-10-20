@@ -26,10 +26,10 @@ public class Song {
             JSONObject obj = (JSONObject) parser.parse(new FileReader(file));
 
             bpm = Double.parseDouble(obj.get("bpm") + "");
-            crochet = 60 / bpm;
+            crochet = 60 / bpm;     //how long one beat is, in seconds
             crochetsperbar = Integer.parseInt(obj.get("crochetsperbar") + "");
             offset = Double.parseDouble(obj.get("offset") + "");
-            scrollspeed = bpm * 2.25 / GUI.hitradius;
+            scrollspeed = GUI.hitradius / 250.0;
 
             conductor = new Conductor(bpm, 0, crochetsperbar, offset);
 
@@ -171,6 +171,11 @@ public class Song {
                     break;
                 case "Hold":
                 case "DoubleHold":
+                    if(an.radius >= GUI.hitradius + ((HoldNote)an.note).duration * crochet * scrollspeed) {
+                        System.out.println(((HoldNote)an.note).duration * crochet);
+                        toRemove.add(an);
+                        missed = true;
+                    }
                     break;
                 case "Circle":
                 case "Across":

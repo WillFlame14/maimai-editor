@@ -38,7 +38,7 @@ public class GUI extends JFrame implements ActionListener, MouseListener {
         
         singlenote = ImageIO.read(new File("single_note.png")).getScaledInstance(50, 50, BufferedImage.SCALE_DEFAULT);
         doublenote = ImageIO.read(new File("double_note.png")).getScaledInstance(50, 50, BufferedImage.SCALE_DEFAULT);
-//        holdnote = ImageIO.read(new File("hold_note.png")).getScaledInstance(50, 50, BufferedImage.SCALE_DEFAULT);
+        holdnote = ImageIO.read(new File("hold_note.png")).getScaledInstance(50, 50, BufferedImage.SCALE_DEFAULT);
 //        doubleholdnote = ImageIO.read(new File("double_hold_note.png")).getScaledInstance(50, 50, BufferedImage.SCALE_DEFAULT);
         circlenote = ImageIO.read(new File("circle_note.png")).getScaledInstance(50, 50, BufferedImage.SCALE_DEFAULT);
 //        acrossnote = ImageIO.read(new File("across_note.png")).getScaledInstance(50, 50, BufferedImage.SCALE_DEFAULT);
@@ -46,7 +46,7 @@ public class GUI extends JFrame implements ActionListener, MouseListener {
         sliderarrow = ImageIO.read(new File("slider_arrow.png")).getScaledInstance(16, 16, BufferedImage.SCALE_DEFAULT);
         hitarea = ImageIO.read(new File("hit_area.png")).getScaledInstance(600, 600, BufferedImage.SCALE_DEFAULT);
         
-        t = new Timer(3, movement);
+        t = new Timer(0, movement);
         t.start();
 
         DrawArea board = new DrawArea(600, 600);
@@ -89,6 +89,7 @@ public class GUI extends JFrame implements ActionListener, MouseListener {
                         break;
                     case "Hold":
                     case "DoubleHold":
+                        b.radius += song.scrollspeed;
                         break;
                     case "Circle":
                     case "Across":
@@ -120,7 +121,20 @@ public class GUI extends JFrame implements ActionListener, MouseListener {
                     g.drawImage(doublenote, (int)p2.a + centrex, (int)p2.b + centrey, null);
                     break;    
                 case "Hold":
-                    g.drawImage(holdnote, (int)p1.a + centrex, (int)p1.b + centrey, null);
+                    if(a.radius > GUI.hitradius) {
+                        for (int i = (int)(a.radius - GUI.hitradius); i < a.radius; i++) {
+                            p2 = ActiveNote.convertCartesian(i, a.note.position);
+                            g.drawImage(holdnote, (int) p2.a + centrex, (int) p2.b + centrey, null);
+                        }
+                    }
+                    else {
+                        for (int i = 0; i < a.radius; i++) {
+                            p2 = ActiveNote.convertCartesian(i, a.note.position);
+                            g.drawImage(holdnote, (int) p2.a + centrex, (int) p2.b + centrey, null);
+                        }
+                    }
+                    
+                    
                     break;
                 case "DoubleHold":
                     p2 = ActiveNote.convertCartesian(a.radius, ((DoubleHoldNote)a.note).pos2);
